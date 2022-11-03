@@ -27,7 +27,11 @@ async function send_to_zoom(action, url, data) {
 
   })
   console.log('Status Code:', res.status);
-  const response = await res.json()
+  if (res.status == 204) {
+    var response = "204"
+  } else {
+    var response = await res.json()
+  }
   //console.log(response)
   return response
 }
@@ -44,7 +48,15 @@ app.get('/', (req, res) => {
   let data = req.query.data
   console.log(action, url, data)
   send_to_zoom(action, url, data)
-    .then(result => res.send(JSON.stringify(result, null, 4)))
+    //.then(result => res.send(JSON.stringify(result, null, 4)))
+    .then(result => {
+      if (res.status(200 || 201)) {
+        let response = JSON.stringify(result, null, 4)
+        res.send(`Response : ${response}`)
+      } else if (res.status(204)) {
+        res.send(JSON.stringify("{'status': '204'}"))
+      }
+    })
     .catch(err => res.status(500).send(err))
 })
 
@@ -59,7 +71,16 @@ app.post('/', (req, res) => {
   let data = req.body
   console.log(action, url, data)
   send_to_zoom(action, url, data)
-    .then(result => res.status(200).send(JSON.stringify(result, null, 4)))
+    .then(result => {
+      if (res.status(200 || 201)) {
+        let response = JSON.stringify(result, null, 4)
+        res.send(`Response : ${response}`)
+      }
+      else if (res.status(204)) {
+        let response = "{Response : 204}"
+        res.send(response)
+      }
+    })
     .catch(err => res.status(500).send(err))
 })
 
